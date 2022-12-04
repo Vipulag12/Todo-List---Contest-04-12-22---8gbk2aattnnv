@@ -1,66 +1,50 @@
-import React, { useState, useRef } from "react";
-import Task from "./task";
-import "./../styles/App.css";
+import React, { useState } from "react";
 
-function App() {
-  const [tasks, setTasks] = useState([]);
-  const [inputValue, setInputValue] = useState("");
+export default function Task(props) {
+  const { task, saveChangedText, handleDelete } = props;
 
-  const taskId = useRef(0);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editText, setEditText] = useState("");
 
-  const handleChange = (event) => {
-    setInputValue(event.target.value);
+  const handleEdit = (id) => {
+    setShowEdit(!showEdit);
   };
 
-  const handleClick = () => {
-    const updatedTasks = [...tasks];
-    updatedTasks.push({ id: taskId.current, text: inputValue });
-    taskId.current = taskId.current + 1;
-    setInputValue("");
-    setTasks(updatedTasks);
+  const handleTextChange = (event) => {
+    setEditText(event.target.value);
   };
 
-  const handleDelete = (id) => {
-    const taskCopy = [...tasks];
-    const filteredTasks = taskCopy.filter((task) =>
-      task.id !== id ? task : null
-    );
-    setTasks(filteredTasks);
-  };
-
-  const saveChangedText = (id, newtext) => {
-    const taskCopy = [...tasks];
-    taskCopy.forEach((task) => {
-      if (task.id === id) {
-        task.text = newtext;
-      }
-    });
-    setTasks(taskCopy);
+  const saveNewText = (id) => {
+    saveChangedText(id, editText);
+    setShowEdit(false);
+    setEditText("");
   };
 
   return (
-    <div id="main">
-      <input
-        id="task"
-        type="textarea"
-        value={inputValue}
-        onChange={handleChange}
-      ></input>
-      <button id="btn" onClick={handleClick} disabled={!inputValue}>
-        Add Task
+    <div>
+      <li className="list">{task.text}</li>
+      <button className="edit" onClick={() => handleEdit(task.id)}>
+        Edit
       </button>
-      <ol>
-        {tasks.map((task) => (
-          <Task
-            key={task.id}
-            task={task}
-            saveChangedText={saveChangedText}
-            handleDelete={handleDelete}
-          />
-        ))}
-      </ol>
+      <button className="delete" onClick={() => handleDelete(task.id)}>
+        Delete
+      </button>
+      {showEdit ? (
+        <div>
+          <input
+            type="texarea"
+            className="editTask"
+            onChange={handleTextChange}
+          ></input>
+          <button
+            className="saveTask"
+            disabled={!editText}
+            onClick={() => saveNewText(task.id)}
+          >
+            Save
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
-
-export default App;
